@@ -1,0 +1,69 @@
+name: Android Build & Upload (debug)
+on:
+  push:
+    branches:
+      - test
+  pull_request:
+    branches:
+      - test
+    types:
+      - 'opened'
+      - 'synchronize'
+      - 'edited'
+      - 'reopened'
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle' # ここでキャッシュ効かせるのがクリーンな鉄則！
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: >
+          ./gradlew assembleDebug
+
+      - id: 'upload-apk'
+        uses: actions/upload-artifact@v6
+        with:
+          name: app-apk-debug
+          path: app/build/outputs/apk/debug/*.apk # 保存したいファイルのパス
+          retention-days: 7 # 何日間保存するか（デフォルトは90日やけど、自分用なら短くてOK）
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifactUrl = "${{ steps.upload-apk.outputs.artifact-url }}";
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### 📦 Build Artifact (Debug)\n\nDownload the APK here: [app-apk-debug](${artifactUrl})`
+            })
+
+#      # Google Cloudへの認証
+#      - id: 'auth'
+#        uses: 'google-github-actions/auth@v2'
+#        with:
+#          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+#
+#      # GCSへのアップロード
+#      - id: 'upload-file'
+#        uses: 'google-github-actions/upload-cloud-storage@v2'
+#        with:
+#          path: 'app/build/outputs/apk/release/app-release.apk'
+#          destination: 'your-bucket-name/builds/' # 自分のバケット名に変えてな
