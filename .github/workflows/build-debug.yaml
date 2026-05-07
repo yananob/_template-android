@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: XXX-run-test
+  group: XXX-build-debug
   cancel-in-progress: true
   
 jobs:
