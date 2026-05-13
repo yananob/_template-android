@@ -12,12 +12,14 @@ android {
         }
     }
 
+    val runNumber = System.getenv("GITHUB_RUN_NUMBER")?.toInt() ?: 1
+
     defaultConfig {
         applicationId = "io.github.yananob.template_android"
         minSdk = 28
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = runNumber
+        versionName = "1.0.$runNumber"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
