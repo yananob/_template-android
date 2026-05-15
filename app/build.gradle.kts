@@ -25,8 +25,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".test"
+            resValue("string", "app_name", "\"_template-android-test\"")
+        }
         release {
             isMinifyEnabled = false
+            resValue("string", "app_name", "\"_template-android\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -42,6 +47,7 @@ android {
     }
     buildFeatures {
         compose = true
+        resValues = true
     }
 }
 
