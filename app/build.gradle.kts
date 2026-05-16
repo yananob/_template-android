@@ -12,19 +12,26 @@ android {
         }
     }
 
+    val runNumber = System.getenv("GITHUB_RUN_NUMBER")?.toInt() ?: 1
+
     defaultConfig {
         applicationId = "io.github.yananob.template_android"
         minSdk = 28
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = runNumber
+        versionName = "1.0.$runNumber"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".test"
+            resValue("string", "app_name", "\"_template-android-test\"")
+        }
         release {
             isMinifyEnabled = false
+            resValue("string", "app_name", "\"_template-android\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -40,6 +47,7 @@ android {
     }
     buildFeatures {
         compose = true
+        resValues = true
     }
 }
 
