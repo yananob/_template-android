@@ -28,6 +28,7 @@ jobs:
               --base main \
               --head test \
               --title "Release test to main [Auto-PR]" \
+              --reviewer "yananob" \
               --body "testブランチをmainに反映します。自動生成されたPRです。"
           else
             echo "PR #${PR_EXISTS} がすでにあるから、作成はスキップするな。"
