@@ -1,8 +1,5 @@
 name: Android Build & Upload (debug)
 on:
-  push:
-    branches:
-      - test
   pull_request:
     branches:
       - test
