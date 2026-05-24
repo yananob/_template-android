@@ -41,7 +41,7 @@ jobs:
         with:
           name: app-apk-debug
           path: app/build/outputs/apk/debug/*.apk # 保存したいファイルのパス
-          retention-days: 7 # 何日間保存するか（デフォルトは90日やけど、自分用なら短くてOK）
+          retention-days: 3 # 何日間保存するか（デフォルトは90日やけど、自分用なら短くてOK）
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
