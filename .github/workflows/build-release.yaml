@@ -44,7 +44,7 @@ jobs:
         with:
           name: app-apk-release
           path: app/build/outputs/apk/release/*.apk # 保存したいファイルのパス
-          retention-days: 7 # 何日間保存するか（デフォルトは90日やけど、自分用なら短くてOK）
+          retention-days: 3 # 何日間保存するか（デフォルトは90日やけど、自分用なら短くてOK）
 
       # AABのビルド実行
       - name: Build aab with Gradle
