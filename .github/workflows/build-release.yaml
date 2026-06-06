@@ -1,12 +1,26 @@
 name: Android Build & Upload (release)
 on:
-  push:
+  # push:
+  #   branches:
+  #     - main
+  # MEMO: どのみちビルドしたファイルをinternalテストするので、releaseでビルドしてGPlayに登録してテストする
+  pull_request:
     branches:
-      - main
+      - test
+    types:
+      - 'opened'
+      - 'synchronize'
+      - 'edited'
+      - 'reopened'
   workflow_dispatch:
+    inputs:
+      aab_path:
+        description: 'Path to the AAB file'
+        required: true
+        default: 'app/build/outputs/bundle/release/app-release.aab'
 
 concurrency:
-  group: XXX-build-release
+  group: {{VALUES_FUNCTION_NAME}}-build-release
   cancel-in-progress: true
 
 jobs:
@@ -60,37 +74,10 @@ jobs:
           keyStorePassword: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
         
-      # ビルドしたAABをArtifactとして保存（後でダウンロードできる）
-      - id: 'upload-aab'
-        name: Upload Build Artifact
-        uses: actions/upload-artifact@v6
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
         with:
-          name: app-aab-release
-          path: app/build/outputs/bundle/release/*.aab
-
-      - name: Comment on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const apkUrl = "${{ steps.upload-apk.outputs.artifact-url }}";
-            const aabUrl = "${{ steps.upload-aab.outputs.artifact-url }}";
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `### 📦 Build Artifacts (Release)\n\n- [app-apk-release](${apkUrl})\n- [app-aab-release](${aabUrl})`
-            })
-          
-#      # Google Cloudへの認証
-#      - id: 'auth'
-#        uses: 'google-github-actions/auth@v2'
-#        with:
-#          credentials_json: '${{ secrets.GCP_SA_KEY }}'
-#
-#      # GCSへのアップロード
-#      - id: 'upload-file'
-#        uses: 'google-github-actions/upload-cloud-storage@v2'
-#        with:
-#          path: 'app/build/outputs/apk/release/app-release.apk'
-#          destination: 'your-bucket-name/builds/' # 自分のバケット名に変えてな
+          releaseFiles: ${{ inputs.aab_path || 'app/build/outputs/bundle/release/app-release.aab' }}
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          packageName: io.github.yananob.{{VALUES_FUNCTION_NAME}}
+          tracks: internal
