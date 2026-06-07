@@ -4,14 +4,9 @@ on:
   #   branches:
   #     - main
   # MEMO: どのみちビルドしたファイルをinternalテストするので、releaseでビルドしてGPlayに登録してテストする
-  pull_request:
+  push:
     branches:
       - test
-    types:
-      - 'opened'
-      - 'synchronize'
-      - 'edited'
-      - 'reopened'
   workflow_dispatch:
     inputs:
       aab_path:
