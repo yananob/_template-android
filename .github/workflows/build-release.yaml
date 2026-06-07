@@ -15,7 +15,7 @@ on:
         default: 'app/build/outputs/bundle/release/app-release.aab'
 
 concurrency:
-  group: {{VALUES_FUNCTION_NAME}}-build-release
+  group: {{VALUES_APP_NAME}}-build-release
   cancel-in-progress: true
 
 jobs:
@@ -74,5 +74,5 @@ jobs:
         with:
           releaseFiles: ${{ inputs.aab_path || 'app/build/outputs/bundle/release/app-release.aab' }}
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
-          packageName: io.github.yananob.{{VALUES_FUNCTION_NAME}}
+          packageName: io.github.yananob.{{VALUES_APP_NAME}}
           tracks: internal

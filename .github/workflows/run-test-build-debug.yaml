@@ -1,4 +1,4 @@
-name: Android Build & Upload (debug)
+name: Run tests & Android Build (debug)
 on:
   pull_request:
     branches:
@@ -11,11 +11,11 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: XXX-build-debug
+  group: {{VALUES_APP_NAME}}-build-debug
   cancel-in-progress: true
   
 jobs:
-  build-and-upload:
+  test-and-build:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -28,10 +28,14 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle' # ここでキャッシュ効かせるのがクリーンな鉄則！
-
+          cache: 'gradle'
+          
       - name: Make gradlew executable
         run: chmod +x gradlew
+      
+      - name: Run Tests
+        run: ./gradlew test
+
       - name: Build with Gradle
         run: >
           ./gradlew assembleDebug
@@ -41,7 +45,7 @@ jobs:
         with:
           name: app-apk-debug
           path: app/build/outputs/apk/debug/*.apk # 保存したいファイルのパス
-          retention-days: 3 # 何日間保存するか（デフォルトは90日やけど、自分用なら短くてOK）
+          retention-days: 3
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
@@ -55,16 +59,3 @@ jobs:
               repo: context.repo.repo,
               body: `### 📦 Build Artifact (Debug)\n\nDownload the APK here: [app-apk-debug](${artifactUrl})`
             })
-
-#      # Google Cloudへの認証
-#      - id: 'auth'
-#        uses: 'google-github-actions/auth@v2'
-#        with:
-#          credentials_json: '${{ secrets.GCP_SA_KEY }}'
-#
-#      # GCSへのアップロード
-#      - id: 'upload-file'
-#        uses: 'google-github-actions/upload-cloud-storage@v2'
-#        with:
-#          path: 'app/build/outputs/apk/release/app-release.apk'
-#          destination: 'your-bucket-name/builds/' # 自分のバケット名に変えてな
