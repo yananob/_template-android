@@ -1,4 +1,4 @@
-name: Run tests & Android Build (debug)
+name: Run test & Android Build (debug)
 on:
   pull_request:
     branches:
