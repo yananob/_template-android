@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: {{VALUES_APP_NAME}}-build-debug
+  group: ${{ github.event.repository.name }}-build-debug
   cancel-in-progress: true
 
 jobs:
