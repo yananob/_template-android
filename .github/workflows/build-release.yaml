@@ -1,12 +1,8 @@
 aname: Android Build & Release (release)
 on:
-  # push:
-  #   branches:
-  #     - main
-  # MEMO: どのみちビルドしたファイルをinternalテストするので、releaseでビルドしてGPlayに登録してテストする
   push:
     branches:
-      - test
+      - main
   workflow_dispatch:
     inputs:
       aab_path:
