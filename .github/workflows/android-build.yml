@@ -1,0 +1,126 @@
+name: Android Build Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      build_type:
+        description: 'Build type: debug or release'
+        required: true
+        type: string
+      run_tests:
+        description: 'Whether to run tests'
+        required: false
+        type: boolean
+        default: false
+      artifact_name:
+        description: 'Name of the artifact to upload (for debug)'
+        required: false
+        type: string
+        default: 'app-apk-debug'
+      apk_path:
+        description: 'Path pattern for APK artifact (for debug)'
+        required: false
+        type: string
+        default: 'app/build/outputs/apk/debug/*.apk'
+      aab_path:
+        description: 'Path to the AAB file (for release)'
+        required: false
+        type: string
+        default: 'app/build/outputs/bundle/release/app-release.aab'
+      package_name:
+        description: 'Package name for Google Play (for release)'
+        required: false
+        type: string
+        default: ''
+      comment_on_pr:
+        description: 'Whether to comment on PR with artifact download link (for debug)'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      ANDROID_SIGNING_KEY:
+        required: false
+      ANDROID_KEY_ALIAS:
+        required: false
+      ANDROID_KEY_STORE_PASSWORD:
+        required: false
+      ANDROID_KEY_PASSWORD:
+        required: false
+      GOOGLE_PLAY_SERVICE_ACCOUNT:
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Decode Keystore
+        if: inputs.build_type == 'release'
+        run: |
+          echo "${{ secrets.ANDROID_SIGNING_KEY }}" | base64 --decode > release.jks
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Run Tests
+        if: inputs.run_tests
+        run: ./gradlew test
+
+      - name: Build with Gradle (Debug)
+        if: inputs.build_type == 'debug'
+        run: ./gradlew assembleDebug
+
+      - id: upload-apk
+        if: inputs.build_type == 'debug'
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.apk_path }}
+          retention-days: 2
+
+      - name: Comment on PR
+        if: inputs.comment_on_pr && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifactUrl = "${{ steps.upload-apk.outputs.artifact-url }}";
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### 📦 Build Artifact (Debug)\n\nDownload the APK here: [${{ inputs.artifact_name }}](${artifactUrl})`
+            })
+
+      - name: Build aab with Gradle
+        if: inputs.build_type == 'release'
+        run: ./gradlew bundleRelease
+
+      - name: Sign AAB
+        if: inputs.build_type == 'release'
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
+          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Upload to Google Play
+        if: inputs.build_type == 'release'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          releaseFiles: ${{ inputs.aab_path }}
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          packageName: ${{ inputs.package_name }}
+          tracks: internal
