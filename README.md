@@ -6,7 +6,8 @@ Jetpack Compose および Modern Android Development (MAD) のベストプラク
 
 - **UI フレームワーク**: Jetpack Compose (Material Design 3)
 - **ビルドツール**: Gradle (Kotlin DSL)
-- **ターゲット SDK**: Android 16 (API Level 36) / SDK Minor 1
+- **コンパイル SDK**: Android API Level 37
+- **ターゲット SDK**: Android 16 (API Level 36)
 - **最小動作 SDK**: Android 9.0 (API Level 28)
 - **開発言語**: Kotlin
 

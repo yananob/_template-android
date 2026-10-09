@@ -6,11 +6,7 @@ plugins {
 
 android {
     namespace = "io.github.yananob.template_android"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37
 
     val runNumber = System.getenv("GITHUB_RUN_NUMBER")?.toInt() ?: 1
 
