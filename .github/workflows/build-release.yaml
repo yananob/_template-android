@@ -74,5 +74,7 @@ jobs:
           tracks: internal
 
   create-tag:
-    needs: [deploy]
+    needs: [build-and-upload]
+    permissions: 
+      contents: write
     uses: yananob/myapps-common/.github/workflows/create-release-tag.yml@main
