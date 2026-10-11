@@ -36,7 +36,7 @@ jobs:
 
       - name: Make gradlew executable
         run: chmod +x gradlew
-        
+
       # - name: Build apk with Gradle
       #   run: >
       #     ./gradlew assembleRelease
@@ -64,7 +64,7 @@ jobs:
           alias: ${{ secrets.ANDROID_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        
+
       - name: Upload to Google Play
         uses: r0adkll/upload-google-play@v1
         with:
@@ -72,3 +72,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
           packageName: io.github.yananob.{{VALUES_APP_NAME}}
           tracks: internal
+
+  create-tag:
+    needs: [deploy]
+    uses: yananob/myapps-common/.github/workflows/create-release-tag.yml@main
