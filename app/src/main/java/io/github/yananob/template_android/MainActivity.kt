@@ -30,10 +30,24 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * 挨拶メッセージの文字列を生成する
+ *
+ * @param name 挨拶対象の名前
+ * @return 整形された挨拶文字列
+ */
+fun formatGreetingMessage(name: String): String = "Hello $name!"
+
+/**
+ * 画面に挨拶メッセージを表示する Composable
+ *
+ * @param name 表示する対象の名前
+ * @param modifier レイアウト修飾子
+ */
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
-        text = "Hello $name!",
+        text = formatGreetingMessage(name),
         modifier = modifier
     )
 }
