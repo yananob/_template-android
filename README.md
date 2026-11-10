@@ -54,5 +54,8 @@ Jetpack Compose および Modern Android Development (MAD) のベストプラク
   - クラス / Composable 関数: `PascalCase`
 - **アーキテクチャ方針**:
   - ドメイン駆動設計（DDD）の考え方に基づき、ロジックを適切にカプセル化・再利用します。
+- **リソース管理**:
+  - テーマカラーは Jetpack Compose (`ui/theme/Color.kt`) で一元管理し、不要な XML カラーリソースの重複定義を避けます。
+  - アプリランチャーアイコンは `res/mipmap-*` ディレクトリ配下に配置し、`res/mipmap-anydpi/ic_launcher.xml` から参照します。
 - **言語方針**:
   - コード内のコメント、コミットメッセージ、ドキュメントは日本語で記述します。
